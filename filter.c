@@ -39,9 +39,11 @@ typedef struct
     unsigned char red;
 } Pixel;
 
+int over_255(int value);
 
 // FILTERS
 void grayscale(int height, int width, Pixel **image);
+void sepia(int height, int width, Pixel **image);
 
 
 int main(int argc, char *argv[])
@@ -192,6 +194,11 @@ int main(int argc, char *argv[])
     {
         grayscale(height, width, image);
     }
+    else if (strcmp(filter, "sepia") == 0)
+    {
+        sepia(height, width, image);
+    }
+    
 
 
 
@@ -228,6 +235,18 @@ int main(int argc, char *argv[])
 
 
 
+// Returns 255 is the value is over 255(FOR PIXEL VALUES)
+int over_255(int value)
+{
+    if (value < 255)
+    {
+        return value;
+    }
+    else
+    {
+        return 255;
+    }
+}
 
 
 // Convert image to grayscale
@@ -248,6 +267,29 @@ void grayscale(int height, int width, Pixel **image)
             image[i][j].red = average;
             image[i][j].green = average;
             image[i][j].blue = average;
+        }
+    }
+}
+
+// Convert image to Sepia
+void sepia(int height, int width, Pixel **image)
+{
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            // Get the original value of each RGB values of the pixel
+            int originalRed = image[i][j].red;
+            int originalGreen = image[i][j].green;
+            int originalBlue = image[i][j].blue;
+
+            // Apply the sepia formula to each pixel
+            image[i][j].red = over_255(
+                round((originalRed * 0.393) + (originalGreen * 0.769) + (originalBlue * 0.189)));
+            image[i][j].green = over_255(
+                round((originalRed * 0.349) + (originalGreen * 0.686) + (originalBlue * 0.168)));
+            image[i][j].blue = over_255(
+                round((originalRed * 0.272) + (originalGreen * 0.534) + (originalBlue * 0.131)));
         }
     }
 }
