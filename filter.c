@@ -23,6 +23,12 @@ typedef struct __attribute__((packed))
     int height;
     unsigned short planes;
     unsigned short bitsPixel;
+    unsigned int compression;
+    unsigned int imageSize;
+    int xPixelsPerMeter;
+    int yPixelsPerMeter;
+    unsigned int colorsUsed;
+    unsigned int colorsImportant;
 } InfoHeader;
 
 // Structure for each pixel
@@ -68,11 +74,13 @@ int main(int argc, char *argv[])
 
     // Create the output file
     FILE *outputFile = fopen(outputPath, "wb");
-    if (inputFile == NULL)
+    if (outputFile == NULL)
     {
         printf("Output File can't be created.\n");
+        fclose(inputFile);
         return 2;
     }
+
 
     // Store the input file FileHeader
     FileHeader header;
@@ -83,17 +91,57 @@ int main(int argc, char *argv[])
     fread(&headerInfo, sizeof(headerInfo), 1, inputFile);
 
 
+    // CHECK FOR VALIDITY
+
+    // Check if file is a BMP
+    if (header.type[0] != 'B' || header.type[1] != 'M')
+    {
+        printf("Not a BMP file.\n");
+        fclose(inputFile);
+        fclose(outputFile);
+        return 1;
+    }
+
+    // Check if the DIB header is the one we expect
+    if (headerInfo.size != 40)
+    {
+        printf("Unsupported BMP header.\n");
+        fclose(inputFile);
+        fclose(outputFile);
+        return 1;
+    }
+
+    // Check if the BMP is 24-bit
+    if (headerInfo.bitsPixel != 24)
+    {
+        printf("Only 24-bit BMP files are supported.\n");
+        fclose(inputFile);
+        fclose(outputFile);
+        return 1;
+    }
+
+    // Check if the BMP is uncompressed
+    if (headerInfo.compression != 0)
+    {
+        printf("Compressed BMP files are not supported.\n");
+        fclose(inputFile);
+        fclose(outputFile);
+        return 1;
+    }
 
 
-    // Copy header and headerInfo to the output file
+
+    // Copy the complete header to the output
     fwrite(&header, sizeof(header), 1, outputFile);
     fwrite(&headerInfo, sizeof(headerInfo), 1, outputFile);
+
+
+
+
 
     // Account for row padding in case row size (width * bytes per pixel) is not divisible by 4
     int bytesPerPixel = headerInfo.bitsPixel / 8;
     int rowPadding = (4 - ((headerInfo.width * bytesPerPixel) % 4)) % 4;
-    
-
 
 
     int height = abs(headerInfo.height);
