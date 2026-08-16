@@ -1,8 +1,11 @@
+#include <ctype.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 
-// Structure of the Header of the BMP file (also remove the padding byte)
+// Structure of the Header of the BMP file
 typedef struct __attribute__((packed))
 {
     unsigned char type[2];
@@ -12,6 +15,7 @@ typedef struct __attribute__((packed))
     unsigned int offset;
 } FileHeader;
 
+// Info Header for BMP files
 typedef struct __attribute__((packed))
 {
     unsigned int size;
@@ -21,7 +25,7 @@ typedef struct __attribute__((packed))
     unsigned short bitsPixel;
 } InfoHeader;
 
-
+// Structure for each pixel
 typedef struct
 {
     unsigned char blue;
@@ -29,18 +33,30 @@ typedef struct
     unsigned char red;
 } Pixel;
 
+
+// FILTERS
+void grayscale(int height, int width, Pixel **image);
+
+
 int main(int argc, char *argv[])
 {
     // Check for proper Usage layout
     if (argc != 4){
         printf("Usage: ./filter [Filter] ./inputPath.bmp ./outputPath.bmp\n");
-        printf("Filters: 'Blur', 'Grayscal', 'Sepia'\n");
+        printf("Filters: 'Blur', 'Grayscale', 'Sepia'\n");
         return 1;
     }
 
     char *filter = argv[1];
+    // Lowercase each character of filter
+    for (int i = 0; filter[i] != '\0'; i++)
+    {
+        filter[i] = tolower(filter[i]);
+    }
+
     char *inputPath = argv[2];
     char *outputPath = argv[3];
+
 
     // Open the input file
     FILE *inputFile = fopen(inputPath, "rb");
@@ -124,6 +140,11 @@ int main(int argc, char *argv[])
 
 
     // MODIFY EACH PIXEL
+    if (strcmp(filter, "grayscale") == 0)
+    {
+        grayscale(height, width, image);
+    }
+
 
 
 
@@ -154,4 +175,31 @@ int main(int argc, char *argv[])
         free(image[i]);
     }
     free(image);
+}
+
+
+
+
+
+
+// Convert image to grayscale
+void grayscale(int height, int width, Pixel **image)
+{
+    printf("Grayscale Filter!\n");
+
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            int average = round(
+                (image[i][j].red +
+                image[i][j].green +
+                image[i][j].blue) / 3.0
+            );
+
+            image[i][j].red = average;
+            image[i][j].green = average;
+            image[i][j].blue = average;
+        }
+    }
 }
