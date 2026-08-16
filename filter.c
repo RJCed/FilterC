@@ -1,6 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
+// Structure of the Header of the BMP file (also remove the padding byte)
+typedef struct __attribute__((packed))
+{
+    unsigned char type[2];
+    unsigned int size;
+    unsigned short reserved1;
+    unsigned short reserved2;
+    unsigned int offset;
+} FileHeader;
+
+
 int main(int argc, char *argv[])
 {
     // Check for proper Usage layout
@@ -10,6 +22,7 @@ int main(int argc, char *argv[])
         return 1;
     }
 
+    char *filter = argv[1];
     char *inputPath = argv[2];
     char *outputPath = argv[3];
 
@@ -29,9 +42,14 @@ int main(int argc, char *argv[])
         return 2;
     }
 
+    // Store the input file header
+    FileHeader header;
+    fread(&header, sizeof(header), 1, inputFile);
+
+    printf("Pixel data starts at %u\n", header.offset);
+    printf("Size of FileHeader: %zu\n", sizeof(FileHeader));
 
     // Close Files
     fclose(inputFile);
     fclose(outputFile);
-    printf("%s, %s %s", argv[1], inputPath, outputPath);
 }
