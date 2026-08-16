@@ -1,2 +1,2 @@
 # FilterC
-A simple C program for applying various filters to BMP images.
+A C program for applying filters to 24-bit BMP files.
