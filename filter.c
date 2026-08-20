@@ -46,7 +46,7 @@ void grayscale(int height, int width, Pixel **image);
 void sepia(int height, int width, Pixel **image);
 void blur(int height, int width, Pixel **image);
 void fliph(int height, int width, Pixel **image);
-
+void flipv(int height, int width, Pixel **image);
 
 int main(int argc, char *argv[])
 {
@@ -208,6 +208,16 @@ int main(int argc, char *argv[])
     {
         fliph(height, width, image);
     }
+    else if (strcmp(filter, "flipv") == 0)
+    {
+        flipv(height, width, image);
+    }
+    else
+    {
+        printf("Usage: ./filter [Filter] ./inputPath.bmp ./outputPath.bmp\n");
+        printf("Filters: 'Blur', 'Grayscale', 'Sepia', 'FlipH', 'FlipV'\n");
+        return 1;
+    }
     
     
     
@@ -365,12 +375,30 @@ void fliph(int height, int width, Pixel **image)
         // Runs for half the image width (Round down if image width is odd)
         for (int j = 0, halfWidth = width / 2; j < halfWidth; j++)
         {
-            // Stores the current pixel RGBTRIPLE to a buffer
+            // Stores the current pixel Pixel to a buffer
             Pixel buffer = image[i][j];
 
             // Swaps the current pixel and its opposite pixel
             image[i][j] = image[i][(width - 1) - j];
             image[i][(width - 1) - j] = buffer;
+        }
+    }
+}
+
+// Flip Vertical
+void flipv(int height, int width, Pixel **image)
+{
+    for (int i = 0; i < width; i++)
+    {
+        // Runs for half the image height (Round down if image height is odd)
+        for (int j = 0, halfHeight = height / 2; j < halfHeight; j++)
+        {
+            // Stores the current pixel Pixel to a buffer
+            Pixel buffer = image[j][i];
+
+            // Swaps the current pixel and its opposite pixel
+            image[j][i] = image[(height - 1) - j][i];
+            image[(height - 1) - j][i] = buffer;
         }
     }
 }
