@@ -44,6 +44,7 @@ int over_255(int value);
 // FILTERS
 void grayscale(int height, int width, Pixel **image);
 void sepia(int height, int width, Pixel **image);
+void blur(int height, int width, Pixel **image);
 
 
 int main(int argc, char *argv[])
@@ -198,6 +199,11 @@ int main(int argc, char *argv[])
     {
         sepia(height, width, image);
     }
+    else if (strcmp(filter, "blur") == 0)
+    {
+        blur(height, width, image);
+    }
+    
     
 
 
@@ -290,6 +296,56 @@ void sepia(int height, int width, Pixel **image)
                 round((originalRed * 0.349) + (originalGreen * 0.686) + (originalBlue * 0.168)));
             image[i][j].blue = over_255(
                 round((originalRed * 0.272) + (originalGreen * 0.534) + (originalBlue * 0.131)));
+        }
+    }
+}
+
+// Add Box blur to image
+void blur(int height, int width, Pixel **image)
+{
+    // Create a copy of image
+    Pixel copy[height][width];
+    for (int a = 0; a < height; a++)
+    {
+        for (int b = 0; b < width; b++)
+        {
+            copy[a][b] = image[a][b];
+        }
+    }
+
+    // Check for each pixel of the image
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            // Total Red, Green, and Blue values of the neighbors of the current pixel
+            int totalRed = 0;
+            int totalGreen = 0;
+            int totalBlue = 0;
+
+            // Counter on how many neighbors the pixel have
+            float counter = 0;
+
+            // Check for each of the 3x3 neighbor of the current pixel
+            for (int column = -1; column <= 1; column++)
+            {
+                for (int row = -1; row <= 1; row++)
+                {
+                    // Checks if the current neighbor is valid
+                    if ((i + column) >= 0 && (i + column) < height && (j + row) >= 0 &&
+                        (j + row) < width)
+                    {
+                        totalRed += copy[i + column][j + row].red;
+                        totalGreen += copy[i + column][j + row].green;
+                        totalBlue += copy[i + column][j + row].blue;
+                        counter++;
+                    }
+                }
+            }
+
+            image[i][j].red = round(totalRed / counter);
+            image[i][j].green = round(totalGreen / counter);
+            image[i][j].blue = round(totalBlue / counter);
         }
     }
 }
