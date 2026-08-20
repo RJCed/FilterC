@@ -40,6 +40,7 @@ typedef struct
 } Pixel;
 
 int over_255(int value);
+void freeImage(int height, Pixel **image);
 
 // FILTERS
 void grayscale(int height, int width, Pixel **image);
@@ -155,6 +156,9 @@ int main(int argc, char *argv[])
     Pixel **image = malloc(height * sizeof(Pixel *));
     if (image == NULL)
     {
+        // Close Files
+        fclose(inputFile);
+        fclose(outputFile);
         return 1;
     }
 
@@ -164,6 +168,9 @@ int main(int argc, char *argv[])
         image[i] = malloc(width * sizeof(Pixel));
         if (image[i] == NULL)
         {
+            // Close Files
+            fclose(inputFile);
+            fclose(outputFile);
             return 1;
         }
     }
@@ -216,6 +223,14 @@ int main(int argc, char *argv[])
     {
         printf("Usage: ./filter [Filter] ./inputPath.bmp ./outputPath.bmp\n");
         printf("Filters: 'Blur', 'Grayscale', 'Sepia', 'FlipH', 'FlipV'\n");
+        
+        // Close Files
+        fclose(inputFile);
+        fclose(outputFile);
+
+        // Free allocated memory for pixels
+        freeImage(height, image);
+
         return 1;
     }
     
@@ -247,14 +262,18 @@ int main(int argc, char *argv[])
     fclose(outputFile);
 
     // Free allocated memory for pixels
+    freeImage(height, image);
+}
+
+// Free allocated memory for pixels
+void freeImage(int height, Pixel **image)
+{
     for (int i = 0; i < height; i++)
     {
         free(image[i]);
     }
     free(image);
 }
-
-
 
 
 // Returns 255 is the value is over 255(FOR PIXEL VALUES)
