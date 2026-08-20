@@ -45,6 +45,7 @@ int over_255(int value);
 void grayscale(int height, int width, Pixel **image);
 void sepia(int height, int width, Pixel **image);
 void blur(int height, int width, Pixel **image);
+void fliph(int height, int width, Pixel **image);
 
 
 int main(int argc, char *argv[])
@@ -52,7 +53,7 @@ int main(int argc, char *argv[])
     // Check for proper Usage layout
     if (argc != 4){
         printf("Usage: ./filter [Filter] ./inputPath.bmp ./outputPath.bmp\n");
-        printf("Filters: 'Blur', 'Grayscale', 'Sepia'\n");
+        printf("Filters: 'Blur', 'Grayscale', 'Sepia', 'FlipH', 'FlipV'\n");
         return 1;
     }
 
@@ -190,7 +191,7 @@ int main(int argc, char *argv[])
 
 
 
-    // MODIFY EACH PIXEL
+    // MODIFY EACH PIXEL ====================================================================================
     if (strcmp(filter, "grayscale") == 0)
     {
         grayscale(height, width, image);
@@ -203,6 +204,11 @@ int main(int argc, char *argv[])
     {
         blur(height, width, image);
     }
+    else if (strcmp(filter, "fliph") == 0)
+    {
+        fliph(height, width, image);
+    }
+    
     
     
 
@@ -346,6 +352,25 @@ void blur(int height, int width, Pixel **image)
             image[i][j].red = round(totalRed / counter);
             image[i][j].green = round(totalGreen / counter);
             image[i][j].blue = round(totalBlue / counter);
+        }
+    }
+}
+
+
+// Flip Horizontal
+void fliph(int height, int width, Pixel **image)
+{
+    for (int i = 0; i < height; i++)
+    {
+        // Runs for half the image width (Round down if image width is odd)
+        for (int j = 0, halfWidth = width / 2; j < halfWidth; j++)
+        {
+            // Stores the current pixel RGBTRIPLE to a buffer
+            Pixel buffer = image[i][j];
+
+            // Swaps the current pixel and its opposite pixel
+            image[i][j] = image[i][(width - 1) - j];
+            image[i][(width - 1) - j] = buffer;
         }
     }
 }
