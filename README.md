@@ -33,7 +33,7 @@ The input image must:
 * Be **24-bit**.
 * Be **uncompressed**.
 
-Most BMP images works, but other BMP format may not be supported.
+Most BMP images work, but some BMP formats may not be supported.
 
 
 **Created by:** Arjay Cedigo
